@@ -12,5 +12,5 @@ When the g933-utils is working on the command line and added to PATH, you just n
 I plan to add more detalied info on how to do it when de app is more polished, but if you have basic linux knowledge this will be straightforward.
 
 # Known Issues
-For now, if you have the usb stick plugged and the headset turned off the app will freeze (It will not responding eather to click on it or "ctrl+c" on the terminal).
+For now, if you have the usb stick plugged and the headset turned off the app will freeze (It will not responding eather to click on it or `ctrl+c` on the terminal).
 The work around for now is to turn the headset on or remove the usb stick to be able to terminate the app.
