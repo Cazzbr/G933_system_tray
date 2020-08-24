@@ -5,10 +5,10 @@ import configparser
 
 # Setup do programa
 APPINDICATOR_ID = 'g933-tools-sys_tray'
-icon_gray = os.path.abspath('G933_grey.png')
-icon_blue = os.path.abspath('G933_blue.png')
-icon_green = os.path.abspath('G933_green.png')
-icon_red = os.path.abspath('G933_red.png')
+icon_gray = os.path.abspath('media/G933_grey.png')
+icon_blue = os.path.abspath('media/G933_blue.png')
+icon_green = os.path.abspath('media/G933_green.png')
+icon_red = os.path.abspath('media/G933_red.png')
 
 class config_parser():
 	def __init__(self):
