@@ -1,5 +1,9 @@
 import os
 import signal
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
+gi.require_version('Notify', '0.7')
 from gi.repository import Gtk as gtk, AppIndicator3 as appindicator, Notify as notify, GLib as glib
 import configparser
 
@@ -35,27 +39,97 @@ class config_parser():
 		self.config.set('User', 'notify', str(new_conf))
 		with open(self.full_config_file_path, 'w') as configfile:
 			self.config.write(configfile)
-		print(new_conf)
 	
 	def get_notification_config(self):
 		return self.notifications_on
 
 class main():
-	# Funções python do aplicativo
+	# Aplicação GTK inicia aqui 
+	def __init__(self):
+		# Class Variables
+		self.is_notification_on = init_parser.get_notification_config()
+		if self.is_notification_on == True:
+			self.show_notification_label = "Turn notifications off"
+		else:
+			self.show_notification_label = "Turn notifications on"
+		
+		self.last_call = "Headset not plugged"
+		self.disp_name = "Headset not plugged"
+
+		# Build Indicator
+		self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, icon_gray, appindicator.IndicatorCategory.SYSTEM_SERVICES)
+		self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+		self.indicator.set_menu(self.build_menu())
+				
+		# Setup notifications, infiite_loop function and create app.    
+		notify.init(APPINDICATOR_ID)
+		glib.timeout_add_seconds(5, self.infinite_callback)
+		gtk.main()
+
+	def build_menu(self):
+		menu = gtk.Menu()
+						
+		self.item_note = gtk.MenuItem(label = self.disp_name)
+		self.item_note.connect('activate', self.on_battery_info_click)
+		menu.append(self.item_note)
+		
+		separator_config = gtk.SeparatorMenuItem()
+		menu.append(separator_config)
+		
+		self.item_config_notify = gtk.MenuItem(label = self.show_notification_label)
+		self.item_config_notify.connect('activate', self.switch_notifications)
+		menu.append(self.item_config_notify)
+		
+		separator_exit = gtk.SeparatorMenuItem()
+		menu.append(separator_exit)
+		
+		item_quit = gtk.MenuItem(label = 'Quit')
+		item_quit.connect('activate', quit)
+		menu.append(item_quit)
+		
+		menu.show_all()
+		return menu
+	
+	# On click menus Methods
+	def on_battery_info_click(self, _):
+		if not self.disp_name == "Headset not plugged":
+			battery = os.popen('g933-utils get battery').read().strip()
+			equalizer = os.popen('g933-utils get equalizer').read().strip()
+			timeout = os.popen('g933-utils get poweroff_timeout').read().strip()
+			volume = os.popen('g933-utils get sidetone_volume').read().strip()
+			show_notification = battery + '\n' + equalizer + '\n' + timeout + '\n' + volume + '\n\n' + 'You can change the configs with g933-utils!' + '\n' + 'Try "g933-utils --help" on a Terminal window.'
+			notify.Notification.new("G933-utils", show_notification , icon_blue).show()
+		else:
+			notify.Notification.new("G933-utils", "Headset not plugged", icon_gray).show()
+	
+	def switch_notifications(self, _):
+		self.is_notification_on = not self.is_notification_on
+		init_parser.change_notify(self.is_notification_on)
+		if self.is_notification_on == True:
+			self.item_config_notify.set_label("Turn notifications off")
+		else:
+			self.item_config_notify.set_label("Turn notifications on")
+
+	def quit(self, _):
+		notify.uninit()
+		gtk.main_quit()
+	
+	# App Methods
+	# This need to be placed here to avoid GTK Erro: Gdk-CRITICAL **: gdk_window_thaw_toplevel_updates: assertion 'window->update_and_descendants_freeze_count > 0' failed
 	def state_unplugged(self):
-		self.indicator.set_icon(icon_gray)
+		self.indicator.set_icon_full(icon_gray, "Gray Icon")
 		self.show_notification("Headset is not Plugged or It's turned off", icon_gray)
 	
 	def state_charging(self, batt_percent):
-		self.indicator.set_icon(icon_green)
+		self.indicator.set_icon_full(icon_green, "Green Icon")
 		self.show_notification("Battery at " +  batt_percent + " and charging", icon_green)
 	
 	def state_normal(self, batt_percent):
-		self.indicator.set_icon(icon_blue)
+		self.indicator.set_icon_full(icon_blue, "Blue Icon")
 		self.show_notification("Battery at " + batt_percent + " and discharging", icon_blue)
 	
 	def state_critical(self, batt_percent):
-		self.indicator.set_icon(icon_red)
+		self.indicator.set_icon_full(icon_red, "Red Icon")
 		self.show_notification("Battery at critical lvl (" + batt_percent + ") and discharging, consider to charge the device battery", icon_red)
 	
 	def show_notification(self, info, icon):
@@ -92,63 +166,6 @@ class main():
 				self.state_unplugged()
 			self.last_call = self.g933_charging
 		return True
-	
-	# Aplicação GTK inicia aqui 
-	def __init__(self):
-		# Class Variables
-		self.is_notification_on = init_parser.get_notification_config()
-		if self.is_notification_on == True:
-			self.show_notification_label = "Turn notifications off"
-		else:
-			self.show_notification_label = "Turn notifications on"
-		
-		self.last_call = "Headset not plugged"
-
-		# Build Indicator
-		self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, icon_gray, appindicator.IndicatorCategory.SYSTEM_SERVICES)
-		self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
-		self.indicator.set_menu(self.build_menu())
-				
-		# Setup notifications, infiite_loop function and create app.    
-		notify.init(APPINDICATOR_ID)
-		glib.timeout_add_seconds(5, self.infinite_callback)
-		gtk.main()
-
-	def build_menu(self):
-		menu = gtk.Menu()
-						
-		self.item_note = gtk.MenuItem('Headset not plugged')
-		#self.item_note.connect('activate', self.show_notification:lambda("G933", str(self.last_call), icon_blue))
-		menu.append(self.item_note)
-		
-		separator_config = gtk.SeparatorMenuItem()
-		menu.append(separator_config)
-		
-		self.item_config_notify = gtk.MenuItem(self.show_notification_label)
-		self.item_config_notify.connect('activate', self.switch_notifications)
-		menu.append(self.item_config_notify)
-		
-		separator_exit = gtk.SeparatorMenuItem()
-		menu.append(separator_exit)
-		
-		item_quit = gtk.MenuItem('Quit')
-		item_quit.connect('activate', quit)
-		menu.append(item_quit)
-		
-		menu.show_all()
-		return menu
-	
-	def switch_notifications(self, _):
-		self.is_notification_on = not self.is_notification_on
-		init_parser.change_notify(self.is_notification_on)
-		if self.is_notification_on == True:
-			self.item_config_notify.set_label("Turn notifications off")
-		else:
-			self.item_config_notify.set_label("Turn notifications on")
-
-	def quit(self, _):
-		notify.uninit()
-		gtk.main_quit()
 
 if __name__ == "__main__":
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
