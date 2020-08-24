@@ -6,7 +6,7 @@ This app is only a system tray application to show the battery level of the G933
 
 # Instalation
 * First off all you need to install the <strong>ashkitten G933-utils</strong>, download and install It from his Github repo;
-* You must also have to add It to your $PATH;
+* You must also have to add It to your `$PATH`;
 
 When the g933-utils is working on the command line and added to PATH, you just need to download the script and the media folders and execute it.
 I plan to add more detalied info on how to do it when de app is more polished, but if you have basic linux knowledge this will be straightforward.
