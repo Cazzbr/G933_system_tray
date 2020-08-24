@@ -1,3 +1,4 @@
+# Version-0.1 - System tray indicator for G933-utils
 import os
 import signal
 import gi
