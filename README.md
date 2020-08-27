@@ -2,7 +2,7 @@
 System tray indicator for <a href="" target="_blank">G933-utils</a> by <a href="https://github.com/ashkitten" target="_blank">ashkitten</a>
 # Disclaimer
 The app indicatior is written in python3.
-This app is only a system tray application to show the battery level of the G933 headset. It must work on any device supported by the command line utility, but the name of the app will not change based on that.
+This app is a system tray application to show the battery level of the G933 headset. It must work on any device supported by the command line utility, but the name of the app will not change based on that(if you want it to be implemented open a pull request).
 
 # Instalation
 * First off all you need to install the <strong>ashkitten G933-utils</strong>, download and install It from his Github repo;
