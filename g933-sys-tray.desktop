@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=G933-sys-tray
+Exec=/usr/bin/python3 /home/luciano/.g933-sys-tray/G933-system-tray.py
+Name[en_US]=G933-sys-tray.desktop
