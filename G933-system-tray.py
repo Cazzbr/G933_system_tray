@@ -116,7 +116,6 @@ class main():
 		gtk.main_quit()
 	
 	# App Methods
-	# This need to be placed here to avoid GTK Erro: Gdk-CRITICAL **: gdk_window_thaw_toplevel_updates: assertion 'window->update_and_descendants_freeze_count > 0' failed
 	def state_unplugged(self):
 		self.indicator.set_icon_full(icon_gray, "Gray Icon")
 		self.show_notification("Headset is not Plugged or It's turned off", icon_gray)
